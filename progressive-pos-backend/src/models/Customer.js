@@ -29,6 +29,19 @@ const customerSchema = new mongoose.Schema(
   }
 );
 
+// Ensure only one Walk-in Customer exists per business/admin
+customerSchema.index(
+  { adminEmail: 1, isWalkIn: 1 },
+  { unique: true, partialFilterExpression: { isWalkIn: true } }
+);
+
+// Ensure phone numbers are unique per business/admin
+customerSchema.index(
+  { adminEmail: 1, phone: 1 },
+  { unique: true }
+);
+
 const Customer = mongoose.model('Customer', customerSchema);
 
 export default Customer;
+

@@ -1,7 +1,7 @@
 import User from '../models/User.js';
-import Customer from '../models/Customer.js';
 import jwt from 'jsonwebtoken';
 import asyncHandler from '../utils/asyncHandler.js';
+import { registerAdminWithWalkIn } from '../services/userService.js';
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '3d' });
@@ -16,8 +16,8 @@ export const register = asyncHandler(async (req, res) => {
     throw new Error('An account with this email already exists');
   }
 
-  // Create user
-  const user = await User.create({
+  // Delegate creation to service layer to guarantee user + default walk-in customer creation atomicity
+  const user = await registerAdminWithWalkIn({
     name,
     email,
     password,
@@ -28,15 +28,6 @@ export const register = asyncHandler(async (req, res) => {
     storeAddress,
     role: 'admin',
     adminEmail: email,
-  });
-
-  // Create a default Walk-in Customer for the new business
-  await Customer.create({
-    name: 'Walk-in Customer',
-    phone: '00000000000',
-    status: 'REGULAR',
-    adminEmail: email,
-    isWalkIn: true,
   });
 
   res.status(201).json({

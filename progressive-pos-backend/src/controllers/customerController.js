@@ -9,7 +9,7 @@ const ensureWalkInCustomer = async (adminEmail) => {
   if (!walkIn) {
     walkIn = await Customer.create({
       name: 'Walk-in Customer',
-      phone: '00000000000',
+      phone: `walkin-${adminEmail}`,
       status: 'REGULAR',
       adminEmail,
       isWalkIn: true,
@@ -85,6 +85,12 @@ export const updateCustomer = asyncHandler(async (req, res) => {
     throw new Error('Not authorized to update this customer');
   }
 
+  // Prevent editing the default walk-in customer
+  if (customer.isWalkIn) {
+    res.status(400);
+    throw new Error('Default walk-in customer cannot be modified');
+  }
+
   if (phone && phone !== customer.phone) {
     const phoneExists = await Customer.findOne({ phone, adminEmail, _id: { $ne: req.params.id } });
     if (phoneExists) {
@@ -114,6 +120,12 @@ export const deleteCustomer = asyncHandler(async (req, res) => {
   if (customer.adminEmail !== adminEmail) {
     res.status(403);
     throw new Error('Not authorized to delete this customer');
+  }
+
+  // Prevent deleting the default walk-in customer
+  if (customer.isWalkIn) {
+    res.status(400);
+    throw new Error('Default walk-in customer cannot be deleted');
   }
 
   await Customer.findByIdAndDelete(req.params.id);
