@@ -39,17 +39,17 @@ const CheckoutForm = ({ plan, initialData }) => {
     }
 
     console.log("PaymentMethod created:", paymentMethod.id);
-    
+
     try {
-      // Call backend to update subscription status
-      await authService.subscribe({ 
-        plan: plan?.id || 'monthly', 
-        status: 'active' 
+      // Call backend with generated Stripe payment method ID for secure server-side validation
+      await authService.subscribe({
+        plan: plan?.id || 'monthly',
+        paymentMethodId: paymentMethod.id
       });
-      
+
       // Clear temporary user data from localStorage before directing to login
       authService.logout();
-      
+
       setStatus("success");
     } catch (err) {
       console.error('Subscription error:', err);
@@ -61,14 +61,14 @@ const CheckoutForm = ({ plan, initialData }) => {
 
   if (status === "success") {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         className="flex flex-col items-center justify-center py-12 text-center"
       >
         <div className="w-24 h-24 rounded-3xl bg-blue-50 flex items-center justify-center mb-8 relative">
-           <div className="absolute inset-0 bg-blue-400/20 rounded-3xl blur-xl animate-pulse" />
-           <CheckCircle2 className="w-12 h-12 text-blue-600 relative z-10" />
+          <div className="absolute inset-0 bg-blue-400/20 rounded-3xl blur-xl animate-pulse" />
+          <CheckCircle2 className="w-12 h-12 text-blue-600 relative z-10" />
         </div>
         <h3 className="text-3xl font-black text-slate-900 mb-3 tracking-tight">Activation Complete!</h3>
         <p className="text-slate-500 mb-1 font-medium">
@@ -77,7 +77,7 @@ const CheckoutForm = ({ plan, initialData }) => {
         <p className="text-sm text-slate-400 mb-10">
           You can now log in to start managing your business.
         </p>
-        
+
         <button
           onClick={() => navigate("/login")}
           className="w-full px-8 py-4 rounded-2xl bg-slate-900 text-white font-black text-sm uppercase tracking-widest hover:bg-slate-800 transition-all shadow-2xl shadow-slate-200 active:scale-[0.98]"
@@ -117,9 +117,8 @@ const CheckoutForm = ({ plan, initialData }) => {
       <div className="group">
         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 transition-colors group-focus-within:text-blue-600">Card Information</label>
         <div
-          className={`w-full px-5 py-4.5 bg-slate-50 border-2 rounded-2xl transition-all ${
-            cardComplete ? "border-blue-600 bg-white shadow-md shadow-blue-50" : "border-slate-100"
-          }`}
+          className={`w-full px-5 py-4.5 bg-slate-50 border-2 rounded-2xl transition-all ${cardComplete ? "border-blue-600 bg-white shadow-md shadow-blue-50" : "border-slate-100"
+            }`}
         >
           <CardElement
             options={cardElementOptions}
@@ -131,19 +130,19 @@ const CheckoutForm = ({ plan, initialData }) => {
           />
         </div>
         <div className="mt-3 flex items-center justify-between">
-            <p className="text-[10px] text-slate-400 flex items-center gap-1.5 font-bold uppercase tracking-wider">
-                <Lock className="w-3.5 h-3.5 text-blue-500" />
-                PCI-DSS Compliant
-            </p>
-            <div className="flex gap-2">
-                <div className="w-8 h-5 bg-slate-100 rounded-sm" />
-                <div className="w-8 h-5 bg-slate-100 rounded-sm" />
-                <div className="w-8 h-5 bg-slate-100 rounded-sm" />
-            </div>
+          <p className="text-[10px] text-slate-400 flex items-center gap-1.5 font-bold uppercase tracking-wider">
+            <Lock className="w-3.5 h-3.5 text-blue-500" />
+            PCI-DSS Compliant
+          </p>
+          <div className="flex gap-2">
+            <div className="w-8 h-5 bg-slate-100 rounded-sm" />
+            <div className="w-8 h-5 bg-slate-100 rounded-sm" />
+            <div className="w-8 h-5 bg-slate-100 rounded-sm" />
+          </div>
         </div>
       </div>
 
-      <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-4 flex gap-4">
+      {/* <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-4 flex gap-4">
         <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
              <CreditCard size={20} />
         </div>
@@ -151,13 +150,13 @@ const CheckoutForm = ({ plan, initialData }) => {
           <p className="font-black uppercase tracking-widest text-[10px] mb-1">Test Mode Active</p>
           Use <span className="font-black select-all">4242 4242 4242 4242</span> with any future expiry and any 3-digit CVC to test.
         </div>
-      </div>
+      </div> */}
 
       {status === "error" && errorMsg && (
-        <motion.div 
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-red-600 text-xs font-bold bg-red-50 border border-red-100 rounded-xl px-4 py-3"
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="text-red-600 text-xs font-bold bg-red-50 border border-red-100 rounded-xl px-4 py-3"
         >
           {errorMsg}
         </motion.div>

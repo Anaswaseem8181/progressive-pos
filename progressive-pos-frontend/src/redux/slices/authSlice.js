@@ -2,9 +2,11 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authService from "../../api/authService";
 
 const savedUser = localStorage.getItem("pos_user");
+const parsedUser = savedUser ? JSON.parse(savedUser) : null;
 
+// Enforce strict payment gate: keep admins with billingStatus other than 'active' unauthenticated on reload
 const initialState = {
-  user: savedUser ? JSON.parse(savedUser) : null,
+  user: (parsedUser && parsedUser.role === 'admin' && parsedUser.billingStatus !== 'active') ? null : parsedUser,
   isLoading: false,
   isError: false,
   message: "",

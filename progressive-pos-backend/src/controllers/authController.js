@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import asyncHandler from '../utils/asyncHandler.js';
 import { registerAdminWithWalkIn } from '../services/userService.js';
+import Stripe from 'stripe';
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '3d' });
@@ -110,24 +111,68 @@ export const getMe = asyncHandler(async (req, res) => {
     contactNumber: user.contactNumber,
   });
 });
-// Update user subscription status
+// Update user subscription status with Stripe Payment Validation
 export const updateSubscription = asyncHandler(async (req, res) => {
-  const { plan, status } = req.body;
-  const user = await User.findById(req.user._id);
+  const { plan, paymentMethodId } = req.body;
 
+  if (!paymentMethodId) {
+    res.status(400);
+    throw new Error('Payment method ID is required');
+  }
+
+  const user = await User.findById(req.user._id);
   if (!user) {
     res.status(404);
     throw new Error('User not found');
   }
 
-  user.subscriptionPlan = plan || user.subscriptionPlan;
-  user.billingStatus = status || 'active';
-  await user.save();
+  // Calculate pricing (Stripe expects amounts in cents)
+  let amountInCents = 15000; // Default Monthly ($150.00)
+  if (plan === 'yearly') {
+    amountInCents = 160000;  // Yearly ($1600.00)
+  }
 
-  res.json({
-    success: true,
-    message: 'Subscription updated successfully',
-    subscriptionPlan: user.subscriptionPlan,
-    billingStatus: user.billingStatus,
-  });
+  // Initialize Stripe using the secret key from env variables
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+  try {
+    // Create and confirm PaymentIntent instantly
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amountInCents,
+      currency: 'usd',
+      payment_method: paymentMethodId,
+      confirm: true,
+      automatic_payment_methods: {
+        enabled: true,
+        allow_redirects: 'never',
+      },
+      description: `Progressive POS SaaS - ${plan === 'yearly' ? 'Yearly' : 'Monthly'} Subscription for ${user.email}`,
+      metadata: {
+        userId: user._id.toString(),
+        email: user.email,
+        plan: plan || 'monthly',
+      },
+    });
+
+    if (paymentIntent.status !== 'succeeded') {
+      res.status(400);
+      throw new Error(`Payment failed with status: ${paymentIntent.status}`);
+    }
+
+    // Activate the subscription in the database upon successful Stripe transaction
+    user.subscriptionPlan = plan || 'monthly';
+    user.billingStatus = 'active';
+    user.emailVerified = true;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Payment completed and subscription activated successfully',
+      subscriptionPlan: user.subscriptionPlan,
+      billingStatus: user.billingStatus,
+    });
+  } catch (stripeError) {
+    res.status(400);
+    throw new Error(stripeError.message || 'Payment processing failed');
+  }
 });

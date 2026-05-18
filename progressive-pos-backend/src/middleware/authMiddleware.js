@@ -27,5 +27,16 @@ export const protect = asyncHandler(async (req, res, next) => {
     throw new Error(`Account is ${req.user.status}. Please contact your administrator.`);
   }
 
+  // Verify subscription status for Admin users (Defense-in-Depth Payment Wall)
+  // Exclude the /subscribe endpoint so unpaid users can hit it to complete their Stripe payments
+  if (
+    req.user.role === 'admin' &&
+    req.user.billingStatus !== 'active' &&
+    !req.originalUrl.includes('/subscribe')
+  ) {
+    res.status(402); // 402 Payment Required
+    throw new Error('Subscription payment required to access this resource');
+  }
+
   next();
 });
