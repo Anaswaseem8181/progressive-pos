@@ -3,10 +3,10 @@ import { calculateCartSubtotal } from "../utils/calculateCart";
 import { mockDb } from "../utils/mockDb";
 import { notify } from "../utils/notifications";
 
-export const usePOS = (initialCustomers = [], currentUser = null) => {
+export const usePOS = (currentUser = null) => {
   const [cart, setCart] = useState([]);
   const [search, setSearch] = useState("");
-  const [selectedCustomerId, setSelectedCustomerId] = useState(initialCustomers[0]?.id || "");
+  const [selectedCustomerId, setSelectedCustomerId] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [lastSale, setLastSale] = useState(null);
 
@@ -47,10 +47,8 @@ export const usePOS = (initialCustomers = [], currentUser = null) => {
   const handleCompleteOrder = () => {
     if (cart.length === 0) return;
 
-    const customer = initialCustomers.find(c => c.id === parseInt(selectedCustomerId));
-
     const saleData = {
-      customer: customer ? customer.name : "Walk-in Customer",
+      customerId: selectedCustomerId || null,
       amount: subtotal,
       billedBy: `${currentUser?.name || "User"} (${currentUser?.role || "Staff"})`,
       items: cart.map(item => ({

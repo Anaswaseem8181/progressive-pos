@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { X, User, Phone } from "lucide-react";
 import { InputField } from "../../ui/InputField";
@@ -18,6 +18,7 @@ export const CustomerModal = ({ isOpen, onClose, onSave, customer }) => {
       reset({
         name: "",
         phone: "",
+        status: "REGULAR",
       });
     }
   }, [customer, reset, isOpen]);
@@ -59,6 +60,20 @@ export const CustomerModal = ({ isOpen, onClose, onSave, customer }) => {
             placeholder="e.g. 03001234567"
             required
           />
+
+          <div className="mb-4 group">
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3 transition-colors group-focus-within:text-blue-600">
+              Customer Status
+            </label>
+            <select
+              {...register("status")}
+              className="block w-full px-6 py-4 bg-white border-2 border-slate-200 rounded-3xl text-sm font-semibold focus:outline-none focus:border-blue-600 transition-all shadow-sm cursor-pointer"
+            >
+              <option value="REGULAR">Regular</option>
+              <option value="VIP">VIP</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
 
           <div className="pt-4 flex gap-3">
             <button

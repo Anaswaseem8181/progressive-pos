@@ -8,7 +8,8 @@ import { ActionDropdown } from "../../components/ui/ActionDropdown";
 import { notify } from "../../utils/notifications";
 
 const Customers = () => {
-  const { customers, addCustomer, updateCustomer } = useCustomers();
+  const { customers, addCustomer, updateCustomer, refreshCustomers } = useCustomers();
+  const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [customerToEdit, setCustomerToEdit] = useState(null);
 
@@ -22,14 +23,24 @@ const Customers = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  const handleSaveCustomer = (data) => {
+  // Debounced search
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      refreshCustomers(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, refreshCustomers]);
+
+  const handleSaveCustomer = async (data) => {
     if (customerToEdit) {
-      if (updateCustomer(customerToEdit.id, data)) {
+      if (await updateCustomer(customerToEdit._id || customerToEdit.id, data)) {
         notify.success("Customer updated successfully");
         closeCustomerModal();
       }
     } else {
-      if (addCustomer(data)) {
+      const newCustomer = await addCustomer(data);
+      if (newCustomer) {
         notify.success("Customer added successfully");
         closeCustomerModal();
       }
@@ -83,6 +94,8 @@ const Customers = () => {
         />
         <input
           type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search customers by name or phone..."
           className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm"
         />
@@ -97,7 +110,7 @@ const Customers = () => {
           ) : (
             customers.map((customer) => (
               <div
-                key={customer.id}
+                key={customer._id || customer.id}
                 className="p-4 flex items-center justify-between hover:bg-gray-50/50 transition-colors"
               >
                 <div className="flex items-center gap-4">
@@ -119,8 +132,8 @@ const Customers = () => {
                   </span>
 
                   <ActionDropdown
-                    isOpen={openDropdownId === customer.id}
-                    onToggle={() => setOpenDropdownId(openDropdownId === customer.id ? null : customer.id)}
+                    isOpen={openDropdownId === (customer._id || customer.id)}
+                    onToggle={() => setOpenDropdownId(openDropdownId === (customer._id || customer.id) ? null : (customer._id || customer.id))}
                     containerClassName="relative"
                     actions={[
                       {

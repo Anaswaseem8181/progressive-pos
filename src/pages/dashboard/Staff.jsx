@@ -18,6 +18,7 @@ const Staff = () => {
     handleEditStaff,
     handleDeleteStaff,
     confirmDeleteStaff,
+    toggleStaffStatus,
     handleSaveStaff,
     closeModal,
     closeDeleteModal
@@ -38,6 +39,7 @@ const Staff = () => {
         users={staffList}
         onEdit={handleEditStaff}
         onDelete={handleDeleteStaff}
+        onToggleStatus={toggleStaffStatus}
       />
 
       <StaffModal

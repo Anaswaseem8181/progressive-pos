@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { loginUser } from "../redux/silces/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, reset } from "../redux/slices/authSlice";
 import { notify } from "../utils/notifications";
 
 export const useLogin = () => {
@@ -10,16 +10,34 @@ export const useLogin = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const { user, isLoading, isError, message } = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(() => {
+    if (isError) {
+      notify.error(message || "Invalid Credentials");
+      
+      // If the backend says payment is needed, we could redirect here, 
+      // but usually the user should go to /subscription manually or we can guide them.
+      if (message?.includes('activation required')) {
+        // Option to redirect to subscription if we have the data
+      }
+    }
+
+    if (user) {
+      navigate("/dashboard");
+    }
+
+    dispatch(reset());
+  }, [user, isError, message, navigate, dispatch]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (email && password) {
-      const isSuccess = await dispatch(loginUser(email, password));
-
-      if (isSuccess) {
-        navigate("/dashboard");
-      } else {
-        notify.error("Invalid Credentials");
-      }
+      dispatch(loginUser({ email, password }));
+    } else {
+      notify.error("Please fill in all fields");
     }
   };
 
@@ -28,6 +46,7 @@ export const useLogin = () => {
     setEmail,
     password,
     setPassword,
-    handleSubmit
+    handleSubmit,
+    isLoading
   };
 };

@@ -4,6 +4,7 @@ import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { motion } from "motion/react";
 import { CheckCircle2, CreditCard, Lock, Loader2 } from "lucide-react";
 import { cardElementOptions } from "../../data";
+import authService from "../../api/authService";
 
 const CheckoutForm = ({ plan, initialData }) => {
   const stripe = useStripe();
@@ -38,8 +39,24 @@ const CheckoutForm = ({ plan, initialData }) => {
     }
 
     console.log("PaymentMethod created:", paymentMethod.id);
-    await new Promise((resolve) => setTimeout(resolve, 1800));
-    setStatus("success");
+    
+    try {
+      // Call backend to update subscription status
+      await authService.subscribe({ 
+        plan: plan?.id || 'monthly', 
+        status: 'active' 
+      });
+      
+      // Clear temporary user data from localStorage before directing to login
+      authService.logout();
+      
+      setStatus("success");
+    } catch (err) {
+      console.error('Subscription error:', err);
+      setStatus("error");
+      const errorMessage = err.response?.data?.message || err.message || "Failed to activate subscription. Please contact support.";
+      setErrorMsg(errorMessage);
+    }
   };
 
   if (status === "success") {
@@ -53,19 +70,19 @@ const CheckoutForm = ({ plan, initialData }) => {
            <div className="absolute inset-0 bg-blue-400/20 rounded-3xl blur-xl animate-pulse" />
            <CheckCircle2 className="w-12 h-12 text-blue-600 relative z-10" />
         </div>
-        <h3 className="text-3xl font-black text-slate-900 mb-3 tracking-tight">Payment Successful!</h3>
+        <h3 className="text-3xl font-black text-slate-900 mb-3 tracking-tight">Activation Complete!</h3>
         <p className="text-slate-500 mb-1 font-medium">
-          Welcome to the <span className="text-blue-600 font-bold">{plan?.title}</span> community.
+          Your account is now ready with the <span className="text-blue-600 font-bold">{plan?.title}</span> plan.
         </p>
         <p className="text-sm text-slate-400 mb-10">
-          Confirmation sent to <span className="font-bold">{email}</span>.
+          You can now log in to start managing your business.
         </p>
         
         <button
           onClick={() => navigate("/login")}
           className="w-full px-8 py-4 rounded-2xl bg-slate-900 text-white font-black text-sm uppercase tracking-widest hover:bg-slate-800 transition-all shadow-2xl shadow-slate-200 active:scale-[0.98]"
         >
-          Go to Dashboard
+          Login to Dashboard
         </button>
       </motion.div>
     );

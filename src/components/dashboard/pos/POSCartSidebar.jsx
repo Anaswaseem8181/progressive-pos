@@ -1,16 +1,18 @@
-import { ShoppingCart, Minus, Plus, Trash2, ChevronDown } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Trash2 } from "lucide-react";
 import { useTaxDiscount } from "../../../components/dashboard/settings/TaxDiscountSection";
+import { SearchableCustomerDropdown } from "./SearchableCustomerDropdown";
 
 const POSCartSidebar = ({
   cart,
-  customers,
   selectedCustomerId,
   setSelectedCustomerId,
   onUpdateQuantity,
   onRemoveFromCart,
   onCompleteOrder,
+  onAddCustomer,
   subtotal,
-  formatCurrency
+  formatCurrency,
+  dropdownRefreshKey
 }) => {
   const { taxRate, discountRate } = useTaxDiscount();
   const discountAmount = subtotal * (discountRate / 100);
@@ -25,21 +27,20 @@ const POSCartSidebar = ({
           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
             Customer
           </label>
-          <div className="relative">
-            <select
-              value={selectedCustomerId}
-              onChange={(e) => setSelectedCustomerId(e.target.value)}
-              className="w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none bg-white cursor-pointer"
+          <div className="flex gap-2">
+            <SearchableCustomerDropdown
+              selectedCustomerId={selectedCustomerId}
+              onSelectCustomer={setSelectedCustomerId}
+              refreshKey={dropdownRefreshKey}
+            />
+            <button
+              type="button"
+              onClick={onAddCustomer}
+              className="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-100 transition-colors border border-emerald-100 flex items-center justify-center shrink-0"
+              title="Add New Customer"
             >
-              {customers.map((customer) => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.name} ({customer.phone})
-                </option>
-              ))}
-            </select>
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
-              <ChevronDown size={16} />
-            </div>
+              <Plus size={20} />
+            </button>
           </div>
         </div>
       </div>

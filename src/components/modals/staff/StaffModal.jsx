@@ -1,15 +1,19 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { X, User, Mail, Lock } from "lucide-react";
+import { X, User, Mail, Lock, Phone } from "lucide-react";
 import { InputField } from "../../ui/InputField";
+import { mergeClasses } from "../../../utils/mergeClasses";
 
 export const StaffModal = ({ isOpen, onClose, onSave, staff }) => {
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm();
+
+  const watchStatus = watch("status");
 
   useEffect(() => {
     if (staff) {
@@ -18,6 +22,7 @@ export const StaffModal = ({ isOpen, onClose, onSave, staff }) => {
       reset({
         name: "",
         email: "",
+        contactNumber: "",
         password: "",
         role: "cashier",
       });
@@ -65,6 +70,17 @@ export const StaffModal = ({ isOpen, onClose, onSave, staff }) => {
           />
 
           <InputField
+            label="Contact Number"
+            name="contactNumber"
+            type="tel"
+            register={register}
+            errors={errors}
+            icon={<Phone size={18} />}
+            placeholder="0300-1234567"
+            required
+          />
+
+          <InputField
             label="Password"
             name="password"
             type="password"
@@ -87,6 +103,25 @@ export const StaffModal = ({ isOpen, onClose, onSave, staff }) => {
               <option value="cashier">Cashier</option>
             </select>
           </div>
+
+          {staff && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Account Status
+              </label>
+              <select
+                {...register("status")}
+                className={mergeClasses(
+                  "w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all bg-white",
+                  watchStatus === "active" ? "text-green-600 font-bold" : "text-red-600 font-bold"
+                )}
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="suspended">Suspended</option>
+              </select>
+            </div>
+          )}
 
           <div className="pt-4 flex gap-3">
             <button

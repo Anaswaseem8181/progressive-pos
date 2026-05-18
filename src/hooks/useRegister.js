@@ -1,25 +1,26 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerValidation } from "../utils/registerValidation";
-import { registerUser } from "../redux/silces/authSlice";
-import { useAuth } from "../hooks/useAuth";
+import { registerUser, reset } from "../redux/slices/authSlice";
 import { notify } from "../utils/notifications";
 
 export const useRegister = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { isAuthenticated } = useAuth();
-    const [isLoading, setIsLoading] = useState(false);
+    const { user, isLoading: isReduxLoading, isError, message } = useSelector(
+        (state) => state.auth
+    );
     const [showCancelModal, setShowCancelModal] = useState(false);
 
     useEffect(() => {
-        if (isAuthenticated) {
-            navigate("/dashboard");
+        if (isError) {
+            notify.error(message);
+            dispatch(reset());
         }
-    }, [isAuthenticated, navigate]);
+    }, [isError, message, dispatch]);
 
     const {
         register,
@@ -30,13 +31,13 @@ export const useRegister = () => {
     });
 
     const onSubmit = async (data) => {
-        setIsLoading(true);
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        dispatch(registerUser(data));
-        notify.success("Account created! Let's set up your subscription.");
-        navigate("/subscription", { state: { registrationData: data } });
+        try {
+            const result = await dispatch(registerUser(data)).unwrap();
+            notify.success("Account created! Let's set up your subscription.");
+            navigate("/subscription", { state: { registrationData: result } });
+        } catch (err) {
+            // Error is handled by extraReducers and useEffect for notify.error
+        }
     };
 
     const handleCancel = () => {
@@ -56,7 +57,7 @@ export const useRegister = () => {
         handleSubmit,
         onSubmit,
         errors,
-        isLoading,
+        isLoading: isReduxLoading,
         showCancelModal,
         handleCancel,
         confirmCancel,
