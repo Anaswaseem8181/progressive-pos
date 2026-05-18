@@ -1,11 +1,7 @@
 node_modules/
-build/
 dist/
-coverage/
-.DS_Store
-*.log
-.env*
+build/
+.env
+.env.*
 !.env.example
-package-lock.json
-PROJECT_LOGIC_ROMAN_URDU.md
-backend_integration_analysis.txt
+.DS_Store
