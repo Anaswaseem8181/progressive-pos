@@ -1,44 +1,31 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import asyncHandler from '../utils/asyncHandler.js';
 
-export const protect = async (req, res, next) => {
-  let token;
+export const protect = asyncHandler(async (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    try {
-      // Get token from header
-      token = req.headers.authorization.split(' ')[1];
-
-      // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      // Get user from the token
-      req.user = await User.findById(decoded.id).select('-password');
-
-      if (!req.user) {
-        return res.status(401).json({ success: false, message: 'Not authorized, user not found' });
-      }
-
-      // Check user status
-      if (req.user.status !== 'active') {
-        return res.status(403).json({ 
-          success: false, 
-          message: `Account is ${req.user.status}. Please contact your administrator.`,
-          status: req.user.status 
-        });
-      }
-
-      return next();
-    } catch (error) {
-      console.error('Auth Middleware Error:', error);
-      return res.status(401).json({ success: false, message: 'Not authorized' });
-    }
+  if (!authHeader?.startsWith('Bearer ')) {
+    res.status(401);
+    throw new Error('Not authorized, no token');
   }
 
-  if (!token) {
-    return res.status(401).json({ success: false, message: 'Not authorized, no token' });
+  const token = authHeader.split(' ')[1];
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+  // Get user from the token
+  req.user = await User.findById(decoded.id).select('-password');
+
+  if (!req.user) {
+    res.status(401);
+    throw new Error('Not authorized, user not found');
   }
-};
+
+  // Check user status
+  if (req.user.status !== 'active') {
+    res.status(403);
+    throw new Error(`Account is ${req.user.status}. Please contact your administrator.`);
+  }
+
+  next();
+});
