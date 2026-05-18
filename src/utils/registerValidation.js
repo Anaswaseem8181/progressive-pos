@@ -16,7 +16,7 @@ export const registerValidation = yup.object().shape({
         .required("Confirm your password"),
     contactNumber: yup
         .string()
-        .matches(/^[0-9]{10,15}$/, "Invalid phone number")
+        .matches(/^((\+92)|(0092))-{0,1}\d{3}-{0,1}\d{7}$|^\d{11}$|^\d{4}-\d{7}$/, "Invalid Pakistani phone number")
         .required("Contact number is required"),
     businessName: yup.string().required("Business name is required"),
     businessCategory: yup.string().required("Select category"),

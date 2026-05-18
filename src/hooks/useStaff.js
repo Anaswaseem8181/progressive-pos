@@ -1,18 +1,26 @@
 import { useState, useEffect, useCallback } from "react";
-import { mockDb } from "../utils/mockDb";
 import { notify } from "../utils/notifications";
+import staffService from "../api/staffService";
 
 export const useStaff = (currentUser) => {
   const [staffList, setStaffList] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState(null);
 
-  const loadStaff = useCallback(() => {
-    if (currentUser?.email) {
-      const staff = mockDb.getStaffForAdmin(currentUser.adminEmail || currentUser.email);
-      setStaffList(staff);
+  const loadStaff = useCallback(async () => {
+    if (currentUser) {
+      setLoading(true);
+      try {
+        const response = await staffService.getStaff();
+        setStaffList(response.data);
+      } catch (error) {
+        notify.error(error.response?.data?.message || "Failed to load staff");
+      } finally {
+        setLoading(false);
+      }
     }
   }, [currentUser]);
 
@@ -35,32 +43,45 @@ export const useStaff = (currentUser) => {
     setShowDeleteModal(true);
   };
 
-  const confirmDeleteStaff = () => {
+  const confirmDeleteStaff = async () => {
     if (staffToDelete) {
-      mockDb.deleteUser(staffToDelete);
-      setShowDeleteModal(false);
-      setStaffToDelete(null);
-      loadStaff();
-      notify.success("Staff member deleted successfully");
+      try {
+        await staffService.deleteStaff(staffToDelete);
+        setShowDeleteModal(false);
+        setStaffToDelete(null);
+        loadStaff();
+        notify.success("Staff member deleted successfully");
+      } catch (error) {
+        notify.error(error.response?.data?.message || "Failed to delete staff");
+      }
     }
   };
 
-  const handleSaveStaff = (data) => {
-    const newStaff = {
-      ...data,
-      businessName: currentUser.businessName,
-      adminEmail: currentUser.adminEmail || currentUser.email,
-    };
-
-    // If editing, preserve the password if not changed
-    if (editingStaff && !data.password) {
-      newStaff.password = editingStaff.password;
+  const toggleStaffStatus = async (staffId, currentStatus) => {
+    const newStatus = currentStatus === "active" ? "inactive" : "active";
+    try {
+      await staffService.updateStaff(staffId, { status: newStatus });
+      notify.success(`Staff member ${newStatus === "active" ? "activated" : "deactivated"}`);
+      loadStaff();
+    } catch (error) {
+      notify.error(error.response?.data?.message || "Failed to update status");
     }
+  };
 
-    mockDb.saveUser(newStaff);
-    setIsModalOpen(false);
-    loadStaff();
-    notify.success(editingStaff ? "Staff details updated" : "Staff member added successfully");
+  const handleSaveStaff = async (data) => {
+    try {
+      if (editingStaff) {
+        await staffService.updateStaff(editingStaff._id, data);
+        notify.success("Staff details updated");
+      } else {
+        await staffService.addStaff(data);
+        notify.success("Staff member added successfully");
+      }
+      setIsModalOpen(false);
+      loadStaff();
+    } catch (error) {
+      notify.error(error.response?.data?.message || "Failed to save staff member");
+    }
   };
 
   const closeModal = () => setIsModalOpen(false);
@@ -68,6 +89,7 @@ export const useStaff = (currentUser) => {
 
   return {
     staffList,
+    loading,
     isModalOpen,
     editingStaff,
     showDeleteModal,
@@ -76,6 +98,7 @@ export const useStaff = (currentUser) => {
     handleEditStaff,
     handleDeleteStaff,
     confirmDeleteStaff,
+    toggleStaffStatus,
     handleSaveStaff,
     closeModal,
     closeDeleteModal

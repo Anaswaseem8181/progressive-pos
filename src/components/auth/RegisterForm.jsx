@@ -8,9 +8,6 @@ import { businessCategory } from "../../data";
 import AuthHeader from "../common/AuthHeader";
 import WarningModal from "../modals/common/WarningModal";
 
-/**
- * RegisterForm - Presentational component for the right panel of the registration page.
- */
 const RegisterForm = ({
   register,
   handleSubmit,

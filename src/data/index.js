@@ -23,23 +23,23 @@ export const products = [
   { id: 10, name: "Tracksuit", size: "Medium", category: "Clothing", price: 3000, stock: 9, status: "LOW STOCK" },
 ];
 
-export const customers = [
-  { id: 1, name: "Walk-in Customer", phone: "0300000000", status: "REGULAR" },
-  { id: 2, name: "Anas", phone: "0309789900", status: "REGULAR" },
-  { id: 3, name: "Sarah Khan", phone: "0312987654", status: "VIP" },
-  { id: 4, name: "Ali", phone: "0300123456", status: "VIP" },
-  { id: 5, name: "Fatima", phone: "0312345678", status: "REGULAR" },
-  { id: 6, name: "Hassan", phone: "0309876543", status: "VIP" },
-  { id: 7, name: "Aisha", phone: "0312987654", status: "REGULAR" },
-  { id: 8, name: "Usman", phone: "0309876543", status: "VIP" },
-  { id: 9, name: "Noor", phone: "0312987654", status: "REGULAR" },
-  { id: 10, name: "Ahmed", phone: "0309876543", status: "VIP" },
-  { id: 11, name: "Zainab", phone: "0312987654", status: "REGULAR" },
-  { id: 12, name: "Bilal", phone: "0309876543", status: "VIP" },
-  { id: 13, name: "Sara", phone: "0312987654", status: "REGULAR" },
-  { id: 14, name: "Hamza", phone: "0309876543", status: "VIP" },
-  { id: 15, name: "Hira", phone: "0312987654", status: "REGULAR" },
-];
+// export const customers = [
+//   { id: 1, name: "Walk-in Customer", phone: "0300000000", status: "REGULAR" },
+//   { id: 2, name: "Anas", phone: "0309789900", status: "REGULAR" },
+//   { id: 3, name: "Sarah Khan", phone: "0312987654", status: "VIP" },
+//   { id: 4, name: "Ali", phone: "0300123456", status: "VIP" },
+//   { id: 5, name: "Fatima", phone: "0312345678", status: "REGULAR" },
+//   { id: 6, name: "Hassan", phone: "0309876543", status: "VIP" },
+//   { id: 7, name: "Aisha", phone: "0312987654", status: "REGULAR" },
+//   { id: 8, name: "Usman", phone: "0309876543", status: "VIP" },
+//   { id: 9, name: "Noor", phone: "0312987654", status: "REGULAR" },
+//   { id: 10, name: "Ahmed", phone: "0309876543", status: "VIP" },
+//   { id: 11, name: "Zainab", phone: "0312987654", status: "REGULAR" },
+//   { id: 12, name: "Bilal", phone: "0309876543", status: "VIP" },
+//   { id: 13, name: "Sara", phone: "0312987654", status: "REGULAR" },
+//   { id: 14, name: "Hamza", phone: "0309876543", status: "VIP" },
+//   { id: 15, name: "Hira", phone: "0312987654", status: "REGULAR" },
+// ];
 
 export const sales = [
   {
@@ -92,6 +92,7 @@ export const menuItems = [
 
 export const subscriptionPlans = [
   {
+    id: "monthly",
     title: "Monthly Plan",
     price: 150,
     duration: "month",
@@ -104,6 +105,7 @@ export const subscriptionPlans = [
     ],
   },
   {
+    id: "yearly",
     title: "Yearly Plan",
     price: 1600,
     duration: "year",

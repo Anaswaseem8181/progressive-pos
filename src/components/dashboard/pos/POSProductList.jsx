@@ -26,38 +26,38 @@ const POSProductGrid = ({
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 overflow-y-auto pr-2 custom-scrollbar">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 overflow-y-auto pr-2 custom-scrollbar">
         {filterProducts(products, search).map((product) => (
           <motion.div
             key={product.id}
-            whileHover={{ y: -4 }}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col justify-between"
+            whileHover={{ y: -2 }}
+            className="bg-white rounded-xl border border-gray-100 shadow-sm p-3.5 flex flex-col justify-between"
           >
             <div>
-              <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1 block">
+              <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-0.5 block">
                 {product.category}
               </span>
-              <h3 className="text-lg font-bold text-gray-900">
+              <h3 className="text-sm font-bold text-gray-900 line-clamp-1">
                 {product.name}
               </h3>
-              <p className="text-xl font-bold text-gray-900 mt-1">
+              <p className="text-base font-bold text-gray-900 mt-0.5">
                 {formatCurrency(product.price)}
               </p>
             </div>
-            <div className="mt-6 flex items-center justify-between">
+            <div className="mt-4 flex items-center justify-between">
               <span
                 className={mergeClasses(
-                  "text-xs font-medium",
+                  "text-[10px] font-medium",
                   product.stock < 10 ? "text-orange-600" : "text-gray-400",
                 )}
               >
-                {product.stock} in stock
+                {product.stock} left
               </span>
               <button
                 onClick={() => onAddToCart(product)}
-                className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all active:scale-95"
+                className="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all active:scale-95"
               >
-                <Plus size={20} />
+                <Plus size={16} />
               </button>
             </div>
           </motion.div>

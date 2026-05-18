@@ -1,4 +1,3 @@
-import React from "react";
 import AuthSplitLayout from "../../components/common/AuthSplitLayout";
 import RegisterBrandPanel from "../../components/auth/RegisterBrandPanel";
 import RegisterForm from "../../components/auth/RegisterForm";

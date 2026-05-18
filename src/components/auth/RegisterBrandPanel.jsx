@@ -4,9 +4,6 @@ import { ShoppingCart, CheckCircle2 } from "lucide-react";
 import BackgroundDecoration from "../common/BackgroundDecoration";
 import { registerFeatures } from "../../data";
 
-/**
- * RegisterBrandPanel - Presentational component for the left panel of the registration page.
- */
 const RegisterBrandPanel = () => {
   return (
     <>
