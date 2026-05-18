@@ -9,11 +9,14 @@ const ensureWalkInCustomer = async (adminEmail) => {
   if (!walkIn) {
     walkIn = await Customer.create({
       name: 'Walk-in Customer',
-      phone: `walkin-${adminEmail}`,
+      phone: 'WALK_IN',
       status: 'REGULAR',
       adminEmail,
       isWalkIn: true,
     });
+  } else if (walkIn.phone !== 'WALK_IN') {
+    walkIn.phone = 'WALK_IN';
+    await walkIn.save();
   }
   return walkIn;
 };
