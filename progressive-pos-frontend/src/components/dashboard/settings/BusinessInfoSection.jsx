@@ -3,7 +3,7 @@ import { Store, Upload, X } from "lucide-react";
 import { useAuth } from "../../../hooks/useAuth";
 import { notify } from "../../../utils/notifications";
 import { SettingsAccordion, SettingsField, SettingsInput, SettingsSaveButton } from "./SettingsComponents";
-import { businessCategory } from "../../../data";
+import { businessCategories } from "../../../data";
 
 export const BusinessInfoSection = () => {
   const { user } = useAuth();
@@ -83,7 +83,7 @@ export const BusinessInfoSection = () => {
             onChange={handleChange}
             className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
           >
-            {businessCategory.map((cat) => (
+            {businessCategories.map((cat) => (
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>

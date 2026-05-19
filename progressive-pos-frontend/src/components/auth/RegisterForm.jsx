@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { ArrowLeft, Building2, User, Mail, Lock, Phone, Globe, Loader2 } from "lucide-react";
 import { InputField } from "../ui/InputField";
 import { SelectField } from "../ui/SelectField";
-import { businessCategory } from "../../data";
+import { businessCategories } from "../../data";
 import AuthHeader from "../common/AuthHeader";
 import WarningModal from "../modals/common/WarningModal";
 
@@ -62,7 +62,7 @@ const RegisterForm = ({
             name="businessCategory"
             register={register}
             errors={errors}
-            options={businessCategory}
+            options={businessCategories}
           />
           <div className="md:col-span-2">
             <InputField label="Store Address" name="storeAddress" register={register} errors={errors} icon={<Globe size={18} />} placeholder="123 Street, City, Country" />

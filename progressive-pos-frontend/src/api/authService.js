@@ -11,8 +11,8 @@ const authService = {
     return response.data;
   },
 
-  getMe: async () => {
-    const response = await apiClient.get('/auth/me');
+  getUserProfile: async () => {
+    const response = await apiClient.get('/auth/profile');
     return response.data;
   },
 

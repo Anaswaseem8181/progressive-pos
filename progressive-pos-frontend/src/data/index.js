@@ -1,7 +1,7 @@
 import { DollarSign, Package, AlertTriangle, Users, CloudUpload, PackageSearch, Smartphone, WifiOff, TrendingUp, ShieldCheck, Zap, ShoppingCart, LineChart, FileDown, Star, Globe, Sun, Moon, Monitor } from "lucide-react";
 export const defaultCurrency = "PKR";
 export const saasCurrency = "USD";
-export const businessCategory = [
+export const businessCategories = [
   "Clothing & Apparel"
 ];
 import adminDashboard from "../assets/images/demoPageImages/AdminDashboard.png";
