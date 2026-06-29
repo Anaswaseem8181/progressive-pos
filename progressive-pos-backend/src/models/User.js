@@ -27,6 +27,13 @@ const userSchema = new mongoose.Schema(
       enum: ['admin', 'manager', 'cashier'],
       default: 'admin',
     },
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: function() {
+        return this.role === 'admin' ? this._id : null;
+      }
+    },
     businessName: {
       type: String,
       default: 'Progressive POS',
@@ -80,13 +87,17 @@ const userSchema = new mongoose.Schema(
     lastLogin: {
       type: Date,
     },
+    passwordChangedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-// Encrypt password using bcrypt
+// Encrypt password & track change timestamp
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) {
     return;
@@ -94,6 +105,11 @@ userSchema.pre('save', async function () {
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+
+  // Only set passwordChangedAt for existing users (not on initial registration)
+  if (!this.isNew) {
+    this.passwordChangedAt = Date.now();
+  }
 });
 
 // Match user entered password to hashed password in database

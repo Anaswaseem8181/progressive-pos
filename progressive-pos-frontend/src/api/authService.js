@@ -21,6 +21,15 @@ const authService = {
     return response.data;
   },
 
+  changePassword: async (currentPassword, newPassword, confirmPassword) => {
+    const response = await apiClient.put('/auth/change-password', {
+      currentPassword,
+      newPassword,
+      confirmPassword,
+    });
+    return response.data;
+  },
+
   logout: () => {
     localStorage.removeItem('pos_user');
   },

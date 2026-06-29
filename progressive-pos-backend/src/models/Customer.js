@@ -18,6 +18,10 @@ const customerSchema = new mongoose.Schema(
     adminEmail: {
       type: String,
       required: [true, 'Customer must be linked to a business admin'],
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        'Please provide a valid admin email',
+      ],
     },
     isWalkIn: {
       type: Boolean,

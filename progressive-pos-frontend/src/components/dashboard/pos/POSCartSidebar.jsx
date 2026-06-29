@@ -60,7 +60,7 @@ const POSCartSidebar = ({
               >
                 <div className="flex flex-col flex-1 min-w-0">
                   <span className="text-sm font-bold text-gray-800 truncate">
-                    {item.name}
+                    {item.name} <span className="text-emerald-600 font-semibold ml-1">({item.size})</span>
                   </span>
                   <span className="text-xs text-gray-400">
                     {formatCurrency(item.price)} per unit

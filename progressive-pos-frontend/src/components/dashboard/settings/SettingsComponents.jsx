@@ -68,14 +68,18 @@ export const SettingsInput = ({ className, ...props }) => (
 /**
  * Save button for a settings section.
  */
-export const SettingsSaveButton = ({ label = "Save Changes", onClick }) => (
+export const SettingsSaveButton = ({ label = "Save Changes", onClick, disabled, loading }) => (
   <div className="pt-2 flex justify-end">
     <button
       type="button"
       onClick={onClick}
-      className="bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100 active:scale-[0.98]"
+      disabled={disabled || loading}
+      className={mergeClasses(
+        "bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100 active:scale-[0.98]",
+        (disabled || loading) && "opacity-60 cursor-not-allowed active:scale-100"
+      )}
     >
-      {label}
+      {loading ? "Saving..." : label}
     </button>
   </div>
 );

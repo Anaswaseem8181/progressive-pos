@@ -21,6 +21,15 @@ export const protect = asyncHandler(async (req, res, next) => {
     throw new Error('Not authorized, user not found');
   }
 
+  // Check if password was changed after token was issued (with 5s clock skew tolerance)
+  if (req.user.passwordChangedAt) {
+    const changedSeconds = parseInt(req.user.passwordChangedAt.getTime() / 1000, 10);
+    if (changedSeconds > (decoded.iat - 5)) {
+      res.status(401);
+      throw new Error('Password was changed recently. Please login again.');
+    }
+  }
+
   // Check user status
   if (req.user.status !== 'active') {
     res.status(403);

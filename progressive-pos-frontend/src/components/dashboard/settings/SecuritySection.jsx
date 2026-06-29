@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { ShieldCheck, Eye, EyeOff } from "lucide-react";
+import { useDispatch } from "react-redux";
 import { notify } from "../../../utils/notifications";
 import { SettingsAccordion, SettingsField, SettingsSaveButton } from "./SettingsComponents";
 import { mergeClasses } from "../../../utils/mergeClasses";
+import authService from "../../../api/authService";
+import { updateToken } from "../../../redux/slices/authSlice";
 
 const PasswordInput = ({ label, name, value, onChange, placeholder }) => {
   const [show, setShow] = useState(false);
@@ -30,8 +33,10 @@ const PasswordInput = ({ label, name, value, onChange, placeholder }) => {
 };
 
 export const SecuritySection = () => {
+  const dispatch = useDispatch();
   const [form, setForm] = useState({ current: "", newPass: "", confirm: "" });
   const [strength, setStrength] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const getStrength = (pass) => {
     let score = 0;
@@ -48,7 +53,7 @@ export const SecuritySection = () => {
     if (name === "newPass") setStrength(getStrength(value));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.current || !form.newPass || !form.confirm) {
       notify.error("Please fill in all password fields.");
       return;
@@ -61,9 +66,25 @@ export const SecuritySection = () => {
       notify.error("Please choose a stronger password.");
       return;
     }
-    notify.success("Password updated successfully!");
-    setForm({ current: "", newPass: "", confirm: "" });
-    setStrength(0);
+
+    try {
+      setLoading(true);
+      const res = await authService.changePassword(
+        form.current,
+        form.newPass,
+        form.confirm
+      );
+      
+      dispatch(updateToken(res.token));
+      notify.success("Password updated successfully!");
+      setForm({ current: "", newPass: "", confirm: "" });
+      setStrength(0);
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || "Failed to update password.";
+      notify.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const strengthLabels = ["", "Weak", "Fair", "Good", "Strong"];
@@ -101,7 +122,7 @@ export const SecuritySection = () => {
         </div>
       )}
 
-      <SettingsSaveButton label="Update Password" onClick={handleSave} />
+      <SettingsSaveButton label="Update Password" onClick={handleSave} loading={loading} />
     </SettingsAccordion>
   );
 };

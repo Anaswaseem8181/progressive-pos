@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useProducts } from "../../hooks/useProducts";
 import { useCustomers } from "../../hooks/useCustomers";
 import { usePOS } from "../../hooks/usePOS";
@@ -12,11 +12,15 @@ import { notify } from "../../utils/notifications";
 
 const POS = () => {
   const { user } = useAuth();
-  const { products: initialProducts } = useProducts();
+  const { products: initialProducts, updateVariantStock, fetchProducts } = useProducts();
   const { addCustomer } = useCustomers();
   const { formatCurrency } = useCurrency();
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [dropdownRefreshKey, setDropdownRefreshKey] = useState(0);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const {
     cart,
@@ -50,7 +54,7 @@ const POS = () => {
         setSelectedCustomerId={setSelectedCustomerId}
         onUpdateQuantity={updateQuantity}
         onRemoveFromCart={removeFromCart}
-        onCompleteOrder={handleCompleteOrder}
+        onCompleteOrder={() => handleCompleteOrder(updateVariantStock)}
         onAddCustomer={() => setIsCustomerModalOpen(true)}
         subtotal={subtotal}
         formatCurrency={formatCurrency}

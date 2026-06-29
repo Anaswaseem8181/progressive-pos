@@ -1,12 +1,8 @@
 import mongoose from 'mongoose';
 import User from '../models/User.js';
 import Customer from '../models/Customer.js';
+import Category from '../models/Category.js';
 
-/**
- * Registers a new Admin and automatically creates a default Walk-in Customer.
- * Utilizes a MongoDB transaction for atomicity. Fallback to manual rollback
- * is triggered if transactions/sessions/retryable writes are unsupported by the MongoDB deployment.
- */
 export const registerAdminWithWalkIn = async (userData) => {
   let session = null;
   let useFallback = false;
@@ -31,6 +27,18 @@ export const registerAdminWithWalkIn = async (userData) => {
         { session }
       );
 
+      await Category.create(
+        [
+          {
+            name: createdUser.businessCategory || 'General',
+            description: 'Default category',
+            businessId: createdUser._id,
+            createdBy: createdUser._id,
+          },
+        ],
+        { session }
+      );
+
       await session.commitTransaction();
       session.endSession();
       return createdUser;
@@ -42,44 +50,53 @@ export const registerAdminWithWalkIn = async (userData) => {
       try {
         await session.abortTransaction();
       } catch (abortError) {
-        // Suppress secondary errors during rollback
+        // Suppress secondary errors
       }
       session.endSession();
     }
 
-    // Detect if the error is due to MongoDB deployment limitations (no replica sets, retryable writes, etc.)
     const isTxnUnsupported = 
       error.message.includes('transaction') ||
       error.message.includes('session') ||
       error.message.includes('replica set') ||
       error.message.includes('retryable writes') ||
-      error.code === 20 || // IllegalOperation
-      error.code === 251;  // NoSuchTransaction
+      error.code === 20 || 
+      error.code === 251;
 
     if (isTxnUnsupported) {
       useFallback = true;
     } else {
-      // Re-throw genuine validation/business errors
       throw error;
     }
   }
 
-  // Fallback: Emulated atomicity (manual cleanup) for standalone local MongoDB instances
+  // Fallback: Manual cleanup logic fixed completely
   if (useFallback) {
     const createdUser = await User.create(userData);
+    let createdCustomer = null;
 
     try {
-      await Customer.create({
+      createdCustomer = await Customer.create({
         name: 'Walk-in Customer',
         phone: 'WALK_IN',
         status: 'REGULAR',
         adminEmail: createdUser.email,
         isWalkIn: true,
       });
-    } catch (customerError) {
-      // Rollback user creation to maintain strict data consistency
+
+      await Category.create({
+        name: createdUser.businessCategory || 'General',
+        description: 'Default category',
+        businessId: createdUser._id,
+        createdBy: createdUser._id,
+      });
+    } catch (fallbackError) {
+      // FIX: User ke sath sath Customer ko bhi delete karein agar Category fail ho jaye
       await User.findByIdAndDelete(createdUser._id);
-      throw customerError;
+      if (createdCustomer) {
+        await Customer.findByIdAndDelete(createdCustomer._id);
+      }
+      throw fallbackError;
     }
 
     return createdUser;
