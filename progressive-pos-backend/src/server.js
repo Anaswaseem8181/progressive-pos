@@ -9,6 +9,7 @@ import staffRoutes from './routes/staffRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import productRoutes from './routes/productRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 dotenv.config();
@@ -40,6 +41,7 @@ app.use('/api/staff', staffRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.get('/', (req, res) => res.json({ message: 'API is running' }));
 

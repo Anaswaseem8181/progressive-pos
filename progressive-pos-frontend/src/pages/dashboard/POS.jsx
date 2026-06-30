@@ -12,7 +12,7 @@ import { notify } from "../../utils/notifications";
 
 const POS = () => {
   const { user } = useAuth();
-  const { products: initialProducts, updateVariantStock, fetchProducts } = useProducts();
+  const { products: initialProducts, fetchProducts } = useProducts();
   const { addCustomer } = useCustomers();
   const { formatCurrency } = useCurrency();
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
@@ -34,6 +34,7 @@ const POS = () => {
     addToCart,
     removeFromCart,
     updateQuantity,
+    setExactQuantity,
     handleCompleteOrder,
     subtotal
   } = usePOS(user);
@@ -46,6 +47,7 @@ const POS = () => {
         onSearchChange={setSearch}
         onAddToCart={addToCart}
         formatCurrency={formatCurrency}
+        cart={cart}
       />
 
       <POSCartSidebar
@@ -53,8 +55,9 @@ const POS = () => {
         selectedCustomerId={selectedCustomerId}
         setSelectedCustomerId={setSelectedCustomerId}
         onUpdateQuantity={updateQuantity}
+        onSetQuantity={setExactQuantity}
         onRemoveFromCart={removeFromCart}
-        onCompleteOrder={() => handleCompleteOrder(updateVariantStock)}
+        onCompleteOrder={handleCompleteOrder}
         onAddCustomer={() => setIsCustomerModalOpen(true)}
         subtotal={subtotal}
         formatCurrency={formatCurrency}

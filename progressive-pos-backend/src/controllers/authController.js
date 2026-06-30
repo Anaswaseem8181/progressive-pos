@@ -41,3 +41,24 @@ export const changePassword = asyncHandler(async (req, res) => {
     ...result,
   });
 });
+
+export const updateBusinessInfo = asyncHandler(async (req, res) => {
+  // Pass req.body and req.file (if any) to the service
+  const result = await authService.updateBusinessInfo(req.user._id, req.body, req.file);
+
+  res.json({
+    success: true,
+    message: 'Business information updated successfully',
+    data: result,
+  });
+});
+
+export const removeLogo = asyncHandler(async (req, res) => {
+  const result = await authService.removeLogo(req.user._id);
+
+  res.json({
+    success: true,
+    message: 'Logo removed successfully',
+    data: result,
+  });
+});

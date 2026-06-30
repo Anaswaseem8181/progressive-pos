@@ -70,6 +70,24 @@ const authSlice = createSlice({
         localStorage.setItem("pos_user", JSON.stringify(state.user));
       }
     },
+    updateBusinessInfoSuccess: (state, action) => {
+      if (state.user) {
+        state.user.businessName = action.payload.businessName;
+        state.user.businessCategory = action.payload.businessCategory;
+        state.user.storeAddress = action.payload.storeAddress;
+        state.user.contactNumber = action.payload.contactNumber;
+        if (action.payload.logoUrl !== undefined) {
+          state.user.logoUrl = action.payload.logoUrl;
+        }
+        localStorage.setItem("pos_user", JSON.stringify(state.user));
+      }
+    },
+    removeLogoSuccess: (state) => {
+      if (state.user) {
+        state.user.logoUrl = "";
+        localStorage.setItem("pos_user", JSON.stringify(state.user));
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -108,5 +126,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { reset, updateCurrency, updateToken } = authSlice.actions;
+export const { reset, updateCurrency, updateToken, updateBusinessInfoSuccess, removeLogoSuccess } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { calculateCartSubtotal } from "../utils/calculateCart";
-import { mockDb } from "../utils/mockDb";
+import orderService from "../api/orderService";
 import { notify } from "../utils/notifications";
 
 export const usePOS = (currentUser = null) => {
@@ -11,40 +11,39 @@ export const usePOS = (currentUser = null) => {
   const [lastSale, setLastSale] = useState(null);
 
   const addToCart = (product, variant) => {
-    // Unique ID for the cart item is a combination of product and variant
     const itemId = `${product._id}_${variant._id}`;
-    
+
     const existing = cart.find((item) => item.id === itemId);
     if (existing) {
-      // Check if we have enough stock
       if (existing.quantity >= variant.stock) {
         notify.warning(`Only ${variant.stock} available in stock.`);
         return;
       }
-      
       setCart(
         cart.map((item) =>
           item.id === itemId
             ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        ),
+            : item
+        )
       );
     } else {
       if (variant.stock < 1) {
         notify.error("Out of stock");
         return;
       }
-      
-      setCart([...cart, { 
-        id: itemId, 
-        productId: product._id,
-        variantId: variant._id,
-        name: product.name, 
-        size: variant.size,
-        stock: variant.stock,
-        price: product.price, 
-        quantity: 1 
-      }]);
+      setCart([
+        ...cart,
+        {
+          id: itemId,
+          productId: product._id,
+          variantId: variant._id,
+          name: product.name,
+          size: variant.size,
+          stock: variant.stock,
+          price: product.price,
+          quantity: 1,
+        },
+      ]);
     }
     notify.info(`${product.name} (${variant.size}) added to cart`, { autoClose: 1000 });
   };
@@ -65,6 +64,23 @@ export const usePOS = (currentUser = null) => {
     );
   };
 
+  const setExactQuantity = (id, value) => {
+    setCart(
+      cart.map((item) => {
+        if (item.id === id) {
+          let newQty = parseInt(value, 10);
+          if (isNaN(newQty) || newQty < 1) newQty = 1;
+          if (newQty > item.stock) {
+            notify.warning(`Only ${item.stock} available in stock.`);
+            return { ...item, quantity: item.stock };
+          }
+          return { ...item, quantity: newQty };
+        }
+        return item;
+      })
+    );
+  };
+
   const removeFromCart = (id) => {
     setCart(cart.filter((item) => item.id !== id));
   };
@@ -73,39 +89,46 @@ export const usePOS = (currentUser = null) => {
     setCart([]);
   };
 
-  // updateVariantStock is passed from useProducts to actually update the DB
-  const handleCompleteOrder = async (updateVariantStock) => {
+  /**
+   * Complete order — calls the backend which atomically:
+   * 1. Validates stock
+   * 2. Creates the order in MongoDB
+   * 3. Deducts variant stock
+   * Rolls back everything if any step fails.
+   *
+   * Note: `updateVariantStock` param is kept for API compatibility
+   * but stock is now handled server-side inside the transaction.
+   */
+  const handleCompleteOrder = async () => {
     if (cart.length === 0) return;
 
-    // Deduct stock for every item
-    if (updateVariantStock) {
-      try {
-        for (const item of cart) {
-          await updateVariantStock(item.productId, item.variantId, -item.quantity);
-        }
-      } catch (err) {
-        console.error("Failed to deduct stock:", err);
-      }
-    }
-
-    const saleData = {
+    const orderPayload = {
       customerId: selectedCustomerId || null,
-      amount: subtotal,
       billedBy: `${currentUser?.name || "User"} (${currentUser?.role || "Staff"})`,
-      items: cart.map(item => ({
+      items: cart.map((item) => ({
+        productId: item.productId,
+        variantId: item.variantId,
         name: item.name,
         size: item.size,
         qty: item.quantity,
-        price: item.price
-      }))
+        price: item.price,
+      })),
     };
 
-    const result = mockDb.saveSale(saleData);
-    setLastSale(result);
-    setShowSuccessModal(true);
-    clearCart();
-    notify.success("Order processed successfully");
-    return result;
+    try {
+      const response = await orderService.createOrder(orderPayload);
+      if (response.success) {
+        setLastSale(response.data);
+        setShowSuccessModal(true);
+        clearCart();
+        notify.success("Order processed successfully");
+        return response.data;
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to process order. Please try again.";
+      notify.error(msg);
+      throw err;
+    }
   };
 
   const subtotal = calculateCartSubtotal(cart);
@@ -122,8 +145,9 @@ export const usePOS = (currentUser = null) => {
     addToCart,
     removeFromCart,
     updateQuantity,
+    setExactQuantity,
     clearCart,
     handleCompleteOrder,
-    subtotal
+    subtotal,
   };
 };

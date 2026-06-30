@@ -3,8 +3,12 @@ import { BusinessInfoSection } from "../../components/dashboard/settings/Busines
 import { AppearanceSection } from "../../components/dashboard/settings/AppearanceSection";
 import { SecuritySection } from "../../components/dashboard/settings/SecuritySection";
 import { TaxDiscountSection } from "../../components/dashboard/settings/TaxDiscountSection";
+import { useAuth } from "../../hooks/useAuth";
 
 const Settings = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -18,8 +22,13 @@ const Settings = () => {
 
       <BusinessInfoSection />
       <AppearanceSection />
-      <SecuritySection />
-      <TaxDiscountSection />
+      
+      {isAdmin && (
+        <>
+          <SecuritySection />
+          <TaxDiscountSection />
+        </>
+      )}
     </motion.div>
   );
 };

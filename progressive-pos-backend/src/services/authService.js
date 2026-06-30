@@ -38,13 +38,15 @@ export const registerUser = async ({ name, email, password, businessName, busine
 };
 
 export const loginUser = async (email, password) => {
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ email }).select('+password').populate('businessId');
 
   if (!user || !(await user.matchPassword(password))) {
     throw new AppError('Invalid email or password', 401);
   }
 
-  if (user.role === 'admin' && user.billingStatus === 'unpaid') {
+  const adminInfo = user.businessId || user;
+
+  if (adminInfo.role === 'admin' && adminInfo.billingStatus === 'unpaid') {
     const error = new AppError('Account activation required. Please complete your subscription payment.', 403);
     error.needsPayment = true;
     throw error;
@@ -62,12 +64,14 @@ export const loginUser = async (email, password) => {
     name: user.name,
     email: user.email,
     role: user.role,
-    businessName: user.businessName,
-    businessCategory: user.businessCategory,
-    currency: user.currency,
-    storeAddress: user.storeAddress,
-    contactNumber: user.contactNumber,
-    billingStatus: user.billingStatus,
+    businessName: adminInfo.businessName,
+    businessCategory: adminInfo.businessCategory,
+    currency: adminInfo.currency,
+    storeAddress: adminInfo.storeAddress,
+    contactNumber: adminInfo.contactNumber,
+    logoUrl: adminInfo.logoUrl,
+    adminEmail: adminInfo.email,
+    billingStatus: adminInfo.billingStatus,
     status: user.status,
     lastLogin: currentTimestamp,
     token: generateToken(user._id),
@@ -75,22 +79,26 @@ export const loginUser = async (email, password) => {
 };
 
 export const getUserProfile = async (userId) => {
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).populate('businessId');
 
   if (!user) {
     throw new AppError('User not found', 404);
   }
+
+  const adminInfo = user.businessId || user;
 
   return {
     _id: user._id,
     name: user.name,
     email: user.email,
     role: user.role,
-    businessName: user.businessName,
-    businessCategory: user.businessCategory,
-    currency: user.currency,
-    storeAddress: user.storeAddress,
-    contactNumber: user.contactNumber,
+    businessName: adminInfo.businessName,
+    businessCategory: adminInfo.businessCategory,
+    currency: adminInfo.currency,
+    storeAddress: adminInfo.storeAddress,
+    contactNumber: adminInfo.contactNumber,
+    logoUrl: adminInfo.logoUrl,
+    adminEmail: adminInfo.email,
   };
 };
 
@@ -156,4 +164,58 @@ export const changePassword = async (userId, currentPassword, newPassword) => {
   return {
     token: generateToken(user._id),
   };
+};
+
+import { deleteImageFromCloudinary, extractPublicId } from '../utils/upload.js';
+
+export const updateBusinessInfo = async (userId, data, file) => {
+  const user = await User.findById(userId);
+  
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+  
+  user.businessName = data.businessName || user.businessName;
+  user.businessCategory = data.category || user.businessCategory;
+  user.storeAddress = data.storeAddress || user.storeAddress;
+  user.contactNumber = data.contactNumber || user.contactNumber;
+  
+  if (file) {
+    // Delete old logo if it exists
+    if (user.logoUrl) {
+      const oldPublicId = extractPublicId(user.logoUrl);
+      if (oldPublicId) {
+        await deleteImageFromCloudinary(oldPublicId);
+      }
+    }
+    user.logoUrl = file.path;
+  }
+  
+  await user.save();
+  
+  // Propagate to other users with same businessId if multi-tenant in future
+  
+  return {
+    businessName: user.businessName,
+    businessCategory: user.businessCategory,
+    storeAddress: user.storeAddress,
+    contactNumber: user.contactNumber,
+    logoUrl: user.logoUrl,
+  };
+};
+
+export const removeLogo = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) throw new AppError('User not found', 404);
+  
+  if (user.logoUrl) {
+    const oldPublicId = extractPublicId(user.logoUrl);
+    if (oldPublicId) {
+      await deleteImageFromCloudinary(oldPublicId);
+    }
+    user.logoUrl = '';
+    await user.save();
+  }
+  
+  return { logoUrl: user.logoUrl };
 };

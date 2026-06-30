@@ -30,6 +30,20 @@ const authService = {
     return response.data;
   },
 
+  updateBusinessInfo: async (formData) => {
+    const response = await apiClient.put('/auth/business-info', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  removeLogo: async () => {
+    const response = await apiClient.delete('/auth/business-info/logo');
+    return response.data;
+  },
+
   logout: () => {
     localStorage.removeItem('pos_user');
   },

@@ -1,33 +1,54 @@
-import { useState, useMemo, useEffect } from "react";
-import { mockDb } from "../utils/mockDb";
-import { topSelling as initialTopSelling } from "../data";
+import { useState, useCallback, useEffect } from "react";
+import orderService from "../api/orderService";
+import { notify } from "../utils/notifications";
 
 export const useSales = () => {
   const [sales, setSales] = useState([]);
-  const topSelling = useMemo(() => initialTopSelling, []);
+  const [stats, setStats] = useState({ totalRevenue: 0, totalOrders: 0 });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const refreshSales = () => {
-    const data = mockDb.getSales();
-    setSales(data);
-  };
-
-  useEffect(() => {
-    refreshSales();
+  const fetchOrders = useCallback(async (limit = 20) => {
+    setIsLoading(true);
+    try {
+      const response = await orderService.getOrders(limit);
+      if (response.success) {
+        setSales(response.data);
+      }
+    } catch (err) {
+      notify.error(err.response?.data?.message || "Failed to load sales");
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  const getRecentSales = (limit = 5) => {
-    return [...sales].slice(0, limit);
-  };
+  const fetchStats = useCallback(async () => {
+    try {
+      const response = await orderService.getOrderStats();
+      if (response.success) {
+        setStats(response.data);
+      }
+    } catch (err) {
+      console.error("Failed to load order stats:", err);
+    }
+  }, []);
 
-  const getTotalRevenue = () => {
-    return sales.reduce((revenueSum, sale) => revenueSum + (sale.amount || 0), 0);
+  useEffect(() => {
+    fetchOrders();
+    fetchStats();
+  }, [fetchOrders, fetchStats]);
+
+  const getTotalRevenue = () => stats.totalRevenue;
+
+  const refreshSales = () => {
+    fetchOrders();
+    fetchStats();
   };
 
   return {
     sales,
-    topSelling,
-    getRecentSales,
+    stats,
+    isLoading,
     getTotalRevenue,
-    refreshSales
+    refreshSales,
   };
 };

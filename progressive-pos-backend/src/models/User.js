@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'Progressive POS',
     },
+    logoUrl: {
+      type: String,
+      default: '',
+    },
     businessCategory: {
       type: String,
       default: 'Clothing & Apparel',

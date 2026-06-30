@@ -5,8 +5,12 @@ import { mergeClasses } from "../../../utils/mergeClasses";
 import { filterProducts } from "../../../utils/filterProducts";
 
 // Mini modal: shown when user taps a product with multiple variants
-const VariantPicker = ({ product, formatCurrency, onSelect, onClose }) => {
-  const totalStock = product.variants?.reduce((s, v) => s + v.stock, 0) ?? 0;
+const VariantPicker = ({ product, formatCurrency, onSelect, onClose, cart = [] }) => {
+  const getCartQuantity = (variantId) => {
+    const item = cart.find(c => c.productId === (product._id || product.id) && c.variantId === variantId);
+    return item ? item.quantity : 0;
+  };
+  const totalStock = product.variants?.reduce((s, v) => s + Math.max(0, v.stock - getCartQuantity(v._id)), 0) ?? 0;
   return (
     <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
       <motion.div
@@ -26,8 +30,9 @@ const VariantPicker = ({ product, formatCurrency, onSelect, onClose }) => {
         <div className="p-4 space-y-2">
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Select Size</p>
           {product.variants?.map((variant) => {
-            const isOut = variant.stock === 0;
-            const isLow = variant.stock > 0 && variant.stock < 5;
+            const dynamicStock = Math.max(0, variant.stock - getCartQuantity(variant._id));
+            const isOut = dynamicStock === 0;
+            const isLow = dynamicStock > 0 && dynamicStock < 5;
             return (
               <button
                 key={variant._id}
@@ -45,7 +50,7 @@ const VariantPicker = ({ product, formatCurrency, onSelect, onClose }) => {
                   "text-xs font-semibold",
                   isOut ? "text-gray-300" : isLow ? "text-orange-500" : "text-gray-400"
                 )}>
-                  {isOut ? "Out of stock" : isLow ? `${variant.stock} left ⚠️` : `${variant.stock} left`}
+                  {isOut ? "Out of stock" : isLow ? `${dynamicStock} left ⚠️` : `${dynamicStock} left`}
                 </span>
               </button>
             );
@@ -56,12 +61,20 @@ const VariantPicker = ({ product, formatCurrency, onSelect, onClose }) => {
   );
 };
 
-const POSProductGrid = ({ products, search, onSearchChange, onAddToCart, formatCurrency }) => {
+const POSProductGrid = ({ products, search, onSearchChange, onAddToCart, formatCurrency, cart = [] }) => {
   const [pickerProduct, setPickerProduct] = useState(null);
+
+  const getCartQuantity = (productId, variantId) => {
+    const item = cart.find(c => c.productId === productId && c.variantId === variantId);
+    return item ? item.quantity : 0;
+  };
 
   const handleCardClick = (product) => {
     const variants = product.variants || [];
-    const available = variants.filter((v) => v.stock > 0);
+    const available = variants.filter((v) => {
+      const dynamicStock = Math.max(0, v.stock - getCartQuantity(product._id || product.id, v._id));
+      return dynamicStock > 0;
+    });
     if (available.length === 0) return; // out of stock
     if (available.length === 1) {
       // Only 1 variant available — add directly
@@ -98,7 +111,7 @@ const POSProductGrid = ({ products, search, onSearchChange, onAddToCart, formatC
       {/* Product grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 overflow-y-auto pr-2 custom-scrollbar">
         {filteredProducts.map((product) => {
-          const totalStock = product.variants?.reduce((s, v) => s + v.stock, 0) ?? 0;
+          const totalStock = product.variants?.reduce((s, v) => s + Math.max(0, v.stock - getCartQuantity(product._id || product.id, v._id)), 0) ?? 0;
           const isOutOfStock = totalStock === 0;
           const hasVariants = (product.variants?.length ?? 0) > 1;
 
@@ -163,6 +176,7 @@ const POSProductGrid = ({ products, search, onSearchChange, onAddToCart, formatC
             formatCurrency={formatCurrency}
             onSelect={handleVariantSelect}
             onClose={() => setPickerProduct(null)}
+            cart={cart}
           />
         )}
       </AnimatePresence>

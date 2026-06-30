@@ -10,18 +10,18 @@ import cashierDashboard from "../assets/images/demoPageImages/CashierDashboard.p
 import productCart from "../assets/images/demoPageImages/ProductCart.png";
 import inventory from "../assets/images/demoPageImages/Inventory.png";
 
-export const products = [
-  { id: 1, name: "Jeans", size: "Medium", category: "Clothing", price: 2050, stock: 27, status: "IN STOCK" },
-  { id: 2, name: "Shirt", size: "Large", category: "Clothing", price: 1020, stock: 6, status: "LOW STOCK" },
-  { id: 3, name: "T-Shirt", size: "Small", category: "Clothing", price: 750, stock: 30, status: "IN STOCK" },
-  { id: 4, name: "Jacket", size: "Medium", category: "Clothing", price: 3500, stock: 10, status: "IN STOCK" },
-  { id: 5, name: "Hoodie", size: "Small", category: "Clothing", price: 2500, stock: 8, status: "LOW STOCK" },
-  { id: 6, name: "Sweater", size: "Large", category: "Clothing", price: 1800, stock: 15, status: "IN STOCK" },
-  { id: 7, name: "Kurta", size: "Medium", category: "Clothing", price: 2200, stock: 12, status: "IN STOCK" },
-  { id: 8, name: "Shorts", size: "Small", category: "Clothing", price: 900, stock: 20, status: "IN STOCK" },
-  { id: 9, name: "Blazer", size: "Large", category: "Clothing", price: 4200, stock: 5, status: "LOW STOCK" },
-  { id: 10, name: "Tracksuit", size: "Medium", category: "Clothing", price: 3000, stock: 9, status: "LOW STOCK" },
-];
+// export const products = [
+//   { id: 1, name: "Jeans", size: "Medium", category: "Clothing", price: 2050, stock: 27, status: "IN STOCK" },
+//   { id: 2, name: "Shirt", size: "Large", category: "Clothing", price: 1020, stock: 6, status: "LOW STOCK" },
+//   { id: 3, name: "T-Shirt", size: "Small", category: "Clothing", price: 750, stock: 30, status: "IN STOCK" },
+//   { id: 4, name: "Jacket", size: "Medium", category: "Clothing", price: 3500, stock: 10, status: "IN STOCK" },
+//   { id: 5, name: "Hoodie", size: "Small", category: "Clothing", price: 2500, stock: 8, status: "LOW STOCK" },
+//   { id: 6, name: "Sweater", size: "Large", category: "Clothing", price: 1800, stock: 15, status: "IN STOCK" },
+//   { id: 7, name: "Kurta", size: "Medium", category: "Clothing", price: 2200, stock: 12, status: "IN STOCK" },
+//   { id: 8, name: "Shorts", size: "Small", category: "Clothing", price: 900, stock: 20, status: "IN STOCK" },
+//   { id: 9, name: "Blazer", size: "Large", category: "Clothing", price: 4200, stock: 5, status: "LOW STOCK" },
+//   { id: 10, name: "Tracksuit", size: "Medium", category: "Clothing", price: 3000, stock: 9, status: "LOW STOCK" },
+// ];
 
 // export const customers = [
 //   { id: 1, name: "Walk-in Customer", phone: "0300000000", status: "REGULAR" },

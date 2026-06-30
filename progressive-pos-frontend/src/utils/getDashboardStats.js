@@ -1,18 +1,21 @@
-import { DollarSign, Package, AlertTriangle, Users } from "lucide-react";
+import { Wallet , Package, PackageMinus, Users } from "lucide-react";
 import { formatPrice } from "./formatPrice";
 
-export const getDashboardStats = (products, customers, sales, currency = "PKR") => {
-  const totalRevenue = sales.reduce((revenueSum, sale) => revenueSum + sale.amount, 0);
-  const lowStockCount = products.filter(product => product.stock < 10).length;
+export const getDashboardStats = (products, customers, totalRevenue, currency = "PKR") => {
+  // Low stock: any product where any variant stock is < 10
+  const lowStockCount = products.filter((product) =>
+    product.variants?.some((v) => v.stock < 10)
+  ).length;
 
   return [
     {
       label: "Total Revenue",
       value: formatPrice(totalRevenue, currency),
-      icon: DollarSign,
+      icon: Wallet,
       color: "text-blue-600",
       bg: "bg-blue-50",
       link: "View all sales",
+      path: "/reports",
     },
     {
       label: "Total Products",
@@ -21,14 +24,16 @@ export const getDashboardStats = (products, customers, sales, currency = "PKR") 
       color: "text-blue-600",
       bg: "bg-blue-50",
       link: "Manage inventory",
+      path: "/inventory",
     },
     {
       label: "Low Stock Items",
       value: lowStockCount.toString(),
-      icon: AlertTriangle,
+      icon: PackageMinus,
       color: "text-orange-600",
       bg: "bg-orange-50",
       link: "Restock needed",
+      path: "/inventory",
     },
     {
       label: "Active Customers",
@@ -37,6 +42,8 @@ export const getDashboardStats = (products, customers, sales, currency = "PKR") 
       color: "text-purple-600",
       bg: "bg-purple-50",
       link: "View customers",
+      path: "/customers",
     },
   ];
 };
+

@@ -43,3 +43,12 @@ export const changePasswordRules = [
   }),
   handleValidationErrors,
 ];
+
+export const updateBusinessInfoRules = [
+  nonEmptyString('businessName'),
+  nonEmptyString('contactNumber'),
+  body('contactNumber')
+    .matches(/^((\+92)|(0092))-{0,1}\d{3}-{0,1}\d{7}$|^\d{11}$|^\d{4}-\d{7}$/)
+    .withMessage('Please add a valid Pakistani phone number'),
+  handleValidationErrors,
+];

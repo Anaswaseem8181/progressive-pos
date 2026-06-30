@@ -7,6 +7,7 @@ const POSCartSidebar = ({
   selectedCustomerId,
   setSelectedCustomerId,
   onUpdateQuantity,
+  onSetQuantity,
   onRemoveFromCart,
   onCompleteOrder,
   onAddCustomer,
@@ -75,9 +76,14 @@ const POSCartSidebar = ({
                     >
                       <Minus size={14} />
                     </button>
-                    <span className="w-8 text-center text-xs font-bold text-gray-900">
-                      {item.quantity}
-                    </span>
+                    <input
+                      type="number"
+                      min="1"
+                      max={item.stock}
+                      value={item.quantity || ""}
+                      onChange={(e) => onSetQuantity(item.id, e.target.value)}
+                      className="w-10 text-center text-xs font-bold text-gray-900 bg-transparent focus:outline-none border-none hide-number-spinners"
+                    />
                     <button
                       onClick={() => onUpdateQuantity(item.id, 1)}
                       className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-all"
