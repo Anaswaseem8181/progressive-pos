@@ -1,4 +1,4 @@
-import { Wallet , Package, PackageMinus, Users } from "lucide-react";
+import { Wallet, Package, PackageMinus, Users } from "lucide-react";
 import { formatPrice } from "./formatPrice";
 
 export const getDashboardStats = (products, customers, totalRevenue, currency = "PKR") => {
@@ -16,6 +16,7 @@ export const getDashboardStats = (products, customers, totalRevenue, currency = 
       bg: "bg-blue-50",
       link: "View all sales",
       path: "/reports",
+      allowedRoles: ["admin", "manager"],
     },
     {
       label: "Total Products",
@@ -25,6 +26,7 @@ export const getDashboardStats = (products, customers, totalRevenue, currency = 
       bg: "bg-blue-50",
       link: "Manage inventory",
       path: "/inventory",
+      allowedRoles: ["admin"],
     },
     {
       label: "Low Stock Items",
@@ -34,6 +36,7 @@ export const getDashboardStats = (products, customers, totalRevenue, currency = 
       bg: "bg-orange-50",
       link: "Restock needed",
       path: "/inventory",
+      allowedRoles: ["admin"],
     },
     {
       label: "Active Customers",
@@ -43,6 +46,7 @@ export const getDashboardStats = (products, customers, totalRevenue, currency = 
       bg: "bg-purple-50",
       link: "View customers",
       path: "/customers",
+      allowedRoles: ["admin", "manager", "cashier"],
     },
   ];
 };

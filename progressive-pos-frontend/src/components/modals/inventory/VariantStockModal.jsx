@@ -21,8 +21,8 @@ const VariantStockModal = ({ isOpen, onClose, product, variant, onSave }) => {
     mode === "set"
       ? parsedAmount
       : mode === "add"
-      ? currentStock + parsedAmount
-      : currentStock - parsedAmount;
+        ? currentStock + parsedAmount
+        : currentStock - parsedAmount;
 
   const handleSave = () => {
     if (!amount || parsedAmount < 0) return;
@@ -69,11 +69,10 @@ const VariantStockModal = ({ isOpen, onClose, product, variant, onSave }) => {
                 key={key}
                 type="button"
                 onClick={() => setMode(key)}
-                className={`flex flex-col items-center gap-1 py-2.5 rounded-xl border-2 text-xs font-bold transition-all ${
-                  mode === key
-                    ? `border-${color}-500 bg-${color}-50 text-${color}-600`
-                    : "border-gray-100 text-gray-400 hover:border-gray-200"
-                }`}
+                className={`flex flex-col items-center gap-1 py-2.5 rounded-xl border-2 text-xs font-bold transition-all ${mode === key
+                  ? `border-${color}-500 bg-${color}-50 text-${color}-600`
+                  : "border-gray-100 text-gray-400 hover:border-gray-200"
+                  }`}
               >
                 <Icon size={16} />
                 {label}
@@ -99,12 +98,11 @@ const VariantStockModal = ({ isOpen, onClose, product, variant, onSave }) => {
 
           {/* Preview */}
           {amount !== "" && (
-            <div className={`flex items-center justify-between rounded-xl p-3 border ${
-              previewStock < 0 ? "bg-red-50 border-red-200" : "bg-emerald-50 border-emerald-200"
-            }`}>
+            <div className={`flex items-center justify-between rounded-xl p-3 border ${previewStock < 0 ? "bg-red-50 border-red-200" : "bg-emerald-50 border-emerald-200"
+              }`}>
               <span className="text-sm font-medium text-gray-600">New Stock</span>
               <span className={`text-xl font-black ${previewStock < 0 ? "text-red-600" : "text-emerald-600"}`}>
-                {previewStock < 0 ? "⚠️ Invalid" : previewStock}
+                {previewStock < 0 ? "Invalid" : previewStock}
               </span>
             </div>
           )}

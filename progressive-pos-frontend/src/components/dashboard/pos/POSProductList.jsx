@@ -50,7 +50,7 @@ const VariantPicker = ({ product, formatCurrency, onSelect, onClose, cart = [] }
                   "text-xs font-semibold",
                   isOut ? "text-gray-300" : isLow ? "text-orange-500" : "text-gray-400"
                 )}>
-                  {isOut ? "Out of stock" : isLow ? `${dynamicStock} left ⚠️` : `${dynamicStock} left`}
+                  {isOut ? "Out of stock" : isLow ? `${dynamicStock} left` : `${dynamicStock} left`}
                 </span>
               </button>
             );
@@ -155,8 +155,8 @@ const POSProductGrid = ({ products, search, onSearchChange, onAddToCart, formatC
                     isOutOfStock
                       ? "bg-gray-100 text-gray-300 cursor-not-allowed"
                       : hasVariants
-                      ? "bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white"
-                      : "bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white"
+                        ? "bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white"
+                        : "bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white"
                   )}
                   title={hasVariants ? "Select size" : "Add to cart"}
                 >

@@ -12,6 +12,7 @@ import Customers from "../pages/dashboard/Customers";
 import Reports from "../pages/dashboard/Reports";
 import Staff from "../pages/dashboard/Staff";
 import Settings from "../pages/dashboard/Settings";
+import Profile from "../pages/dashboard/Profile";
 import MainLayout from "../components/layout/MainLayout";
 import SubscriptionPlan from "../pages/landing/subscription/SubscriptionPlan";
 
@@ -59,6 +60,11 @@ export const AppRoutes = () => {
         <Route path="/settings" element={
           <ProtectedRoute roles={["admin", "manager", "cashier"]}>
             <Settings />
+          </ProtectedRoute>
+        } />
+        <Route path="/profile" element={
+          <ProtectedRoute roles={["admin", "manager", "cashier"]}>
+            <Profile />
           </ProtectedRoute>
         } />
       </Route>

@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { menuItems } from "../../data";
 import * as Icons from "lucide-react";
@@ -10,6 +10,7 @@ import { notify } from "../../utils/notifications";
 
 const Sidebar = ({ isOpen, setIsOpen, isCollapsed, onToggle }) => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleConfirmLogout = () => {
@@ -102,15 +103,18 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, onToggle }) => {
 
         {/* User Info & Logout */}
         <div className="p-3 border-t border-gray-100">
-          {/* User info - hide when collapsed */}
-          <div className={mergeClasses(
-            "px-3 py-3 mb-1 transition-all duration-300",
-            isCollapsed ? "md:hidden" : "block"
-          )}>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">User</p>
-            <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
+          {/* User info - click to go to profile */}
+          <button
+            onClick={() => { navigate("/profile"); setIsOpen(false); }}
+            className={mergeClasses(
+              "w-full text-left px-3 py-3 mb-1 rounded-lg hover:bg-gray-50 transition-colors group",
+              isCollapsed ? "md:hidden" : "block"
+            )}
+          >
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">My Profile</p>
+            <p className="text-sm font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors">{user?.name}</p>
             <p className="text-xs text-emerald-600 font-medium capitalize">{user?.role}</p>
-          </div>
+          </button>
 
           {/* Logout button */}
           <button

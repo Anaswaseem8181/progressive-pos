@@ -69,6 +69,7 @@ export const loginUser = async (email, password) => {
     currency: adminInfo.currency,
     storeAddress: adminInfo.storeAddress,
     contactNumber: adminInfo.contactNumber,
+    personalContactNumber: user.contactNumber,
     logoUrl: adminInfo.logoUrl,
     adminEmail: adminInfo.email,
     billingStatus: adminInfo.billingStatus,
@@ -97,6 +98,7 @@ export const getUserProfile = async (userId) => {
     currency: adminInfo.currency,
     storeAddress: adminInfo.storeAddress,
     contactNumber: adminInfo.contactNumber,
+    personalContactNumber: user.contactNumber,
     logoUrl: adminInfo.logoUrl,
     adminEmail: adminInfo.email,
   };
