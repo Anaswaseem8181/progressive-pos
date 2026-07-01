@@ -1,0 +1,68 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useProducts } from "../../hooks/useProducts";
+import { useCustomers } from "../../hooks/useCustomers";
+import { useSales } from "../../hooks/useSales";
+import { getDashboardStats } from "../../utils/getDashboardStats";
+import { useCurrency } from "../../hooks/useCurrency";
+import { useAuth } from "../../hooks/useAuth";
+import { notify } from "../../utils/notifications";
+
+const StatsCards = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { products, fetchProducts } = useProducts();
+  const { customers } = useCustomers();
+  const { getTotalRevenue } = useSales();
+  const { currency } = useCurrency();
+  const stats = getDashboardStats(products, customers, getTotalRevenue(), currency);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  const handleStatLinkClick = (stat) => {
+    const hasAccess = stat.allowedRoles?.includes(user?.role);
+    if (!hasAccess) {
+      notify.error("Access Denied: You don't have permission to view this page.");
+      return;
+    }
+    navigate(stat.path);
+  };
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {stats.map((stat, index) => {
+        const hasAccess = stat.allowedRoles?.includes(user?.role);
+        return (
+          <div
+            key={index}
+            className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">{stat.label}</p>
+                <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
+              </div>
+              <div className={`${stat.bg} ${stat.color} p-3 rounded-xl`}>
+                <stat.icon size={24} />
+              </div>
+            </div>
+            <button
+              onClick={() => handleStatLinkClick(stat)}
+              className={`text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors ${
+                hasAccess
+                  ? "text-emerald-600 hover:text-emerald-700"
+                  : "text-gray-400 hover:text-red-500"
+              }`}
+            >
+              <span className="mr-1">›</span> {stat.link}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+export default StatsCards;
